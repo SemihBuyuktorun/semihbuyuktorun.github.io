@@ -263,16 +263,16 @@ function updateSlider() {
     sliderItems.forEach((item, i) => {
         item.style.transform = `translateX(${-sliderIndex * 100}%)`;
     });
-    // Butonları her zaman göster, sadece opacity ile kontrol et
+    // Butonlar her zaman görünür, sadece aktiflik kontrolü
     if (sliderBtnPrev) {
         sliderBtnPrev.style.display = 'block';
-        sliderBtnPrev.style.opacity = sliderIndex === 0 ? '0.3' : '1';
-        sliderBtnPrev.style.pointerEvents = sliderIndex === 0 ? 'none' : 'auto';
+        sliderBtnPrev.disabled = sliderIndex === 0;
+        sliderBtnPrev.style.opacity = sliderIndex === 0 ? '0.5' : '1';
     }
     if (sliderBtnNext) {
         sliderBtnNext.style.display = 'block';
-        sliderBtnNext.style.opacity = sliderIndex === sliderItems.length - 1 ? '0.3' : '1';
-        sliderBtnNext.style.pointerEvents = sliderIndex === sliderItems.length - 1 ? 'none' : 'auto';
+        sliderBtnNext.disabled = sliderIndex === sliderItems.length - 1;
+        sliderBtnNext.style.opacity = sliderIndex === sliderItems.length - 1 ? '0.5' : '1';
     }
 }
 
@@ -288,78 +288,57 @@ sliderBtnNext?.addEventListener('click', () => {
 // Slider ilk açılışta güncellensin
 if (sliderContainer && sliderItems.length > 0) {
     updateSlider();
-    
-    // Dokunmatik gezinme özelliği ekle
-    let startX = 0;
-    let currentX = 0;
-    let isDragging = false;
+
+    // Dokunmatik ve mouse ile kaydırma
+    let dragStartX = null;
+    let dragging = false;
+
+    function handleMove(x) {
+        if (dragStartX === null) return;
+        const diffX = dragStartX - x;
+        const threshold = 40;
+        if (Math.abs(diffX) > threshold) {
+            if (diffX > 0 && sliderIndex < sliderItems.length - 1) {
+                sliderIndex++;
+                updateSlider();
+            } else if (diffX < 0 && sliderIndex > 0) {
+                sliderIndex--;
+                updateSlider();
+            }
+            dragStartX = null;
+        }
+    }
 
     sliderContainer.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX;
-        isDragging = true;
+        dragStartX = e.touches[0].clientX;
+        dragging = true;
     }, { passive: true });
-
     sliderContainer.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        currentX = e.touches[0].clientX;
+        if (!dragging) return;
+        handleMove(e.touches[0].clientX);
     }, { passive: true });
-
-    sliderContainer.addEventListener('touchend', (e) => {
-        if (!isDragging) return;
-        isDragging = false;
-        
-        const diffX = startX - currentX;
-        const threshold = 50; // Minimum kaydırma mesafesi
-        
-        if (Math.abs(diffX) > threshold) {
-            if (diffX > 0 && sliderIndex < sliderItems.length - 1) {
-                // Sağa kaydırma - sonraki resim
-                sliderIndex++;
-                updateSlider();
-            } else if (diffX < 0 && sliderIndex > 0) {
-                // Sola kaydırma - önceki resim
-                sliderIndex--;
-                updateSlider();
-            }
-        }
+    sliderContainer.addEventListener('touchend', () => {
+        dragging = false;
+        dragStartX = null;
     }, { passive: true });
-
-    // Fare ile de çalışsın (masaüstü için)
-    let mouseStartX = 0;
-    let isMouseDragging = false;
 
     sliderContainer.addEventListener('mousedown', (e) => {
-        mouseStartX = e.clientX;
-        isMouseDragging = true;
+        dragStartX = e.clientX;
+        dragging = true;
         e.preventDefault();
     });
-
     sliderContainer.addEventListener('mousemove', (e) => {
-        if (!isMouseDragging) return;
+        if (!dragging) return;
+        handleMove(e.clientX);
         e.preventDefault();
     });
-
-    sliderContainer.addEventListener('mouseup', (e) => {
-        if (!isMouseDragging) return;
-        isMouseDragging = false;
-        
-        const diffX = mouseStartX - e.clientX;
-        const threshold = 50;
-        
-        if (Math.abs(diffX) > threshold) {
-            if (diffX > 0 && sliderIndex < sliderItems.length - 1) {
-                sliderIndex++;
-                updateSlider();
-            } else if (diffX < 0 && sliderIndex > 0) {
-                sliderIndex--;
-                updateSlider();
-            }
-        }
+    sliderContainer.addEventListener('mouseup', () => {
+        dragging = false;
+        dragStartX = null;
     });
-
-    // Drag'i iptal et
     sliderContainer.addEventListener('mouseleave', () => {
-        isMouseDragging = false;
+        dragging = false;
+        dragStartX = null;
     });
 }
 

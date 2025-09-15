@@ -1,309 +1,186 @@
-// Basit durum makinesi: preloader -> intro (typewriter) -> cake
-const preloader = document.getElementById('preloader');
-const intro = document.getElementById('intro');
-const typeEl = document.getElementById('typewriter');
-const cakeScreen = document.getElementById('cake-screen');
-const micHint = document.getElementById('mic-hint');
-const micBtn = document.getElementById('mic-btn');
-const debugEl = document.getElementById('debug');
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doğum Günün Kutlu Olsun Aylin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body style="background: linear-gradient(135deg, #2a1f3d 0%, #4a2c5a 100%);">
+  <audio id="bg-music" src="music/dogum-gunu-aylin.mp3" loop hidden></audio>
+  <div id="entry-screen" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(42,31,61,0.95);display:flex;flex-direction:column;justify-content:center;align-items:center;">
+    <button id="big-play-btn" style="font-size:2.5rem;padding:2rem 4rem;border-radius:2rem;background:#ff69b4;color:white;border:none;box-shadow:0 0 20px #fff;cursor:pointer;">Buraya Tıkla</button>
+  </div>
+  <div id="main-content" style="display:none;">
+    <!-- Preloader -->
+    <div id="preloader" aria-hidden="true">
+      <div class="spinner"></div>
+      <p>Yükleniyor…</p>
+    </div>
 
-// Kullanıcı ayarı: isim
-const NAME = 'Aylin';
-const MESSAGE = `Doğum Günün Kutlu olsun.\nİyiki Doğdun Arkadaşım 🧡`;
+    <!-- Typewriter Ekranı -->
+    <section id="intro" class="screen active" aria-live="polite">
+      <h1 id="typewriter" aria-label="Doğum Günün Kutlu olsun. İyiki Doğdun Arkadaşım"></h1>
+    </section>
 
-// Preloader kaldır
-window.addEventListener('load', () => {
-    setTimeout(() => preloader.classList.add('hide'), 500);
-    // Typewriter başlat
-    startTypewriter(MESSAGE, 55).then(() => {
-        // 700ms bekle, sonra pasta ekranına geç
-        setTimeout(() => switchToCake(), 700);
-    });
-});
-
-function startTypewriter(text, speed = 60) {
-    return new Promise(resolve => {
-        let i = 0;
-        typeEl.textContent = '';
-        intro.classList.add('active');
-        const interval = setInterval(() => {
-            typeEl.textContent += text.charAt(i);
-            i++;
-            if (i >= text.length) {
-                clearInterval(interval);
-                resolve();
-            }
-        }, speed);
-    });
-}
-
-function switchToCake() {
-    intro.classList.remove('active');
-    intro.setAttribute('aria-hidden', 'true');
-    cakeScreen.classList.add('active');
-    cakeScreen.removeAttribute('aria-hidden');
-    // Kullanıcıya mikrofonu başlatması için butonu göster (iOS/izin/etkileşim gereksinimi için güvenli)
-    micBtn.classList.remove('hidden');
-    micHint.textContent = 'Mikrofonu başlatın, sonra üfleyin ✨';
-    debugEl.classList.remove('hidden');
-}
-
-// Mumları yönet
-const candles = Array.from(document.querySelectorAll('.candle'));
-function extinguishCandles() {
-    candles.forEach(c => {
-        if (!c.classList.contains('out')) {
-            c.classList.add('out');
-            // puff animasyonu tetikle: smoke içindeki spanlara yeniden akış
-            const spans = c.querySelectorAll('.smoke span');
-            spans.forEach(s => {
-                s.style.animation = 'none';
-                // reflow
-                void s.offsetWidth;
-                s.style.animation = '';
-            });
-        }
-    });
-    micHint.textContent = 'Dileklerini tut 🎁';
+    <!-- Pasta Ekranı -->
+    <section id="cake-screen" class="screen" aria-hidden="true">
+    <div class="decor">
+      <div class="bunting">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="confetti" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i><i></i>
+      </div>
+    </div>
+    <div class="cake-wrapper" role="img" aria-label="Doğum günü pastası ve mumlar">
+      <div class="cake">
+        <div class="layer layer-1"></div>
+        <div class="layer layer-2"></div>
+        <div class="layer layer-3"></div>
+        <div class="cream"></div>
+        <div class="plate"></div>
+        <div class="candles">
+          <div class="candle" data-id="1">
+            <div class="flame"></div>
+            <div class="smoke">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+          <div class="candle" data-id="2">
+            <div class="flame"></div>
+            <div class="smoke">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+          <div class="candle" data-id="3">
+            <div class="flame"></div>
+            <div class="smoke">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="hint" id="mic-hint">Mikrofona üfleyin ✨</p>
+      <div>
+        <button id="mic-btn" class="btn hidden" aria-describedby="mic-hint">Mikrofona izin ver</button>
+      </div>
+      <div id="blow-warning" class="blow-warning" aria-live="assertive" role="alert">Daha Güçlü Üfle Firavun!!!</div>
+    </div>
     
-    // Kutlama gösterisini başlat
-    startCelebration();
+    <!-- Kutlama Gösterisi -->
+    <div id="celebration" class="celebration hidden" aria-hidden="true">
+      <!-- Konfetiler -->
+      <div class="confetti-container">
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+      </div>
+      
+      <!-- Havai Fişekler -->
+      <div class="fireworks-container">
+        <div class="firework">
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+        </div>
+        <div class="firework">
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+        </div>
+        <div class="firework">
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+        </div>
+      </div>
+    </div>
     
-    const wish = document.getElementById('wish');
-    if(wish){
-        wish.classList.remove('hidden');
-        // Küçük gecikmeyle fade-in daha zarif görünür
-        requestAnimationFrame(() => requestAnimationFrame(() => wish.classList.add('show')));
-    }
-}
+    <div id="wish" class="wish hidden" aria-live="polite" role="status">
+      <div class="slideshow-glass">
+        <div class="slideshow-track">
+          <div class="slide">
+            <img src="image/1.JPG" alt="Fotoğraf 1" class="slide-photo">
+          </div>
+          <div class="slide">
+            <img src="image/2.JPG" alt="Fotoğraf 2" class="slide-photo">
+          </div>
+          <div class="slide">
+            <img src="image/3.JPG" alt="Fotoğraf 3" class="slide-photo">
+          </div>
+          <div class="slide">
+            <img src="image/4.JPG" alt="Fotoğraf 4" class="slide-photo">
+          </div>
+          <div class="slide">
+            <img src="image/5.jpg" alt="Fotoğraf 5" class="slide-photo">
+          </div>
+          <div class="slide">
+            <img src="image/6.JPG" alt="Fotoğraf 6" class="slide-photo">
+          </div>
+          <div class="slide">
+            <img src="image/7.JPG" alt="Fotoğraf 7" class="slide-photo">
+          </div>
+          <div class="slide slide-message">
+            <h2 class="wish-title">Doğum Günün Kutlu Olsun!</h2>
+            <div class="wish-message">Hayatının yeni yaşında sağlık, mutluluk ve başarı seninle olsun. Tüm dileklerin gerçek olsun!</div>
+            <div class="signature">Semih Büyüktorun</div>
+          </div>
+        </div>
+        <button class="slideshow-btn slideshow-btn-prev" aria-label="Önceki">&#8592;</button>
+        <button class="slideshow-btn slideshow-btn-next" aria-label="Sonraki">&#8594;</button>
+      </div>
+    </div>
+    <div id="debug" class="debug hidden" aria-hidden="true"></div>
+  </section>
+  </div>
 
-// Kutlama gösterisi
-function startCelebration() {
-    const celebration = document.getElementById('celebration');
-    if (celebration) {
-        celebration.classList.remove('hidden');
-        
-            // 8 saniye sonra kutlama gösterisini gizle
-        setTimeout(() => {
-            celebration.classList.add('hidden');
-            }, 8000);
-    }
-}
-
-// Mikrofonla üfleme algılama
-let audioStream;
-let audioContext;
-let analyser;
-let timeData;
-let freqData;
-let isBlown = false;
-let baseNoise = 0; // dinamik kalibrasyon
-let calibrated = false;
-
-async function initMic() {
-    // Güvenli bağlam ve API desteği kontrolü
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        console.warn('getUserMedia desteklenmiyor veya güvenli bağlam değil.');
-    micHint.textContent = 'Mikrofon desteklenmiyor. Tarayıcı ayarlarından izin verin.';
-        return;
-    }
-    try {
-        // Not: getUserMedia mikrofon için HTTPS veya localhost gerektirir
-        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const source = audioContext.createMediaStreamSource(audioStream);
-        analyser = audioContext.createAnalyser();
-        analyser.fftSize = 2048;
-        source.connect(analyser);
-        timeData = new Uint8Array(analyser.fftSize);
-        freqData = new Uint8Array(analyser.frequencyBinCount);
-        // Önce 500ms ortam gürültüsünü kalibre et
-        await calibrateNoise(600);
-        // Timer'ı sıfırla ve başlat
-        micStartTime = performance.now();
-        hasShownInitialWarning = false;
-        listenForBlow();
-        micHint.textContent = 'Hazır! Mikrofona üfleyin ✨';
-    } catch (err) {
-        console.warn('Mikrofon erişimi alınamadı:', err);
-    micHint.textContent = 'Mikrofon izni verilmedi. Tarayıcı ayarlarından izin verin.';
-    }
-}
-
-function getRMS() {
-    analyser.getByteTimeDomainData(timeData);
-    let sum = 0;
-    // Diferansiyel RMS: DC ve yavaş değişimleri azaltır (üflemenin keskin komponentleri öne çıkar)
-    let prev = (timeData[0] - 128) / 128;
-    for (let i = 1; i < timeData.length; i++) {
-        const v = (timeData[i] - 128) / 128; // -1..1
-        const d = v - prev;
-        sum += d * d;
-        prev = v;
-    }
-    return Math.sqrt(sum / (timeData.length - 1)) * 140; // skala artırıldı
-}
-
-function calibrateNoise(durationMs = 500) {
-    calibrated = false;
-    return new Promise(resolve => {
-        const start = performance.now();
-        let acc = 0; let n = 0; let peak = 0;
-        const step = () => {
-            const rms = getRMS();
-            acc += rms; n++; if (rms > peak) peak = rms;
-            if (performance.now() - start < durationMs) {
-                requestAnimationFrame(step);
-            } else {
-                baseNoise = Math.max(1.8, acc / Math.max(1, n)); // diferansiyel RMS için alt sınır (orta seviye)
-                // ortama göre esnek eşik
-                calibrated = true;
-                resolve();
-            }
-        };
-        step();
-    });
-}
-
-let BLOW_HOLD_MS = 75; // dengeli tepki hızı (%60 düşürüldü)
-let aboveSince = 0;
-let lastWarn = 0;
-let hasShownInitialWarning = false; // Bir kerelik uyarı flag'i
-let micStartTime = 0; // Mikrofon başlama zamanı
-
-function listenForBlow() {
-    const blowWarning = document.getElementById('blow-warning');
-    const now = performance.now();
-    const rms = getRMS();
-    // Gürültüye göre marj (%60 düşürüldü): sessizde 1.9, gürültüde 3.4'e kadar
-    const margin = Math.max(1.9, Math.min(3.4, 1.48 + (baseNoise / 48)));
-    const dynamicThreshold = Math.min(42, baseNoise + margin);
-
-    // Ek: üflemede yüksek frekans içeriği artar; 2kHz-6kHz bandına basit bir bakış
-    analyser.getByteFrequencyData(freqData);
-    const len = freqData.length;
-    const sampleRate = audioContext?.sampleRate || 44100; // gerçek sampleRate kullan
-    const binHz = (sampleRate / 2) / len;
-    const from = Math.floor(2000 / binHz);
-    const to = Math.min(len - 1, Math.floor(6000 / binHz));
-    let hfSum = 0; let hfN = 0;
-    for (let i = from; i <= to; i++) { hfSum += freqData[i]; hfN++; }
-    const hfAvg = hfN ? (hfSum / hfN) : 0; // 0..255
-
-    // görsel olarak hafif kıs: çok yüksekte dim kaldır
-    candles.forEach(c => c.classList.toggle('dim', rms < dynamicThreshold));
-
-    // Gürültü seviyesine göre HF eşiği (%60 düşürüldü): dengeli tetikleme için
-    const hfThreshold = Math.max(11.7, Math.min(19.5, 15.6 + (baseNoise - 15) * 0.3));
-    // RMS ve yüksek frekans birlikte sağlanmalı
-    const blowDetected = (rms > dynamicThreshold) && (hfAvg > hfThreshold);
-    debugEl.textContent = `RMS: ${rms.toFixed(1)} (Eşik: ${dynamicThreshold.toFixed(1)}) | HF: ${hfAvg.toFixed(0)} (Eşik: ${hfThreshold.toFixed(0)}) | Algılandı: ${blowDetected ? 'EVET' : 'HAYIR'}`;
-
-    // Bir kerelik uyarı göster (mikrofon başladıktan 3 saniye sonra)
-    if (!hasShownInitialWarning && blowWarning && !isBlown && (now - micStartTime) > 3000) {
-        hasShownInitialWarning = true;
-        blowWarning.classList.add('show');
-        setTimeout(() => blowWarning.classList.remove('show'), 2000);
-    }
-
-    if (blowDetected) {
-        if (blowWarning) blowWarning.classList.remove('show');
-        if (aboveSince === 0) aboveSince = now;
-        if (now - aboveSince > BLOW_HOLD_MS && !isBlown) {
-            isBlown = true;
-            extinguishCandles();
-            stopMic();
-            return;
-        }
-    } else {
-        aboveSince = 0;
-        // Yeterince güçlü üfleme yoksa uyarı göster - dengeli koşul (%60 düşürüldü)
-        if (blowWarning && !isBlown && (rms > (baseNoise + 0.42) || hfAvg > 6.2)) {
-            // Biraz ses var ama yeterli değil - sadece her 1.2 saniyede bir göster
-            if (now - lastWarn > 1200) {
-                blowWarning.classList.add('show');
-                lastWarn = now;
-                setTimeout(() => blowWarning.classList.remove('show'), 1500);
-            }
-        }
-    }
-
-    requestAnimationFrame(listenForBlow);
-}
-
-function stopMic() {
-    try {
-        if (audioStream) { audioStream.getTracks().forEach(t => t.stop()); }
-        if (audioContext) { audioContext.close(); }
-    } catch (e) { /* no-op */ }
-}
-
-// Klavye fallback kaldırıldı.
-
-// Pasta ekranına geçildikten sonra mikrofonu hazırlamayı dene
-// Otomatik başlatmayı kaldırdık; buton ile başlatılacak.
-
-// Kullanıcı etkileşimi ile mikrofonu başlat (iOS/Safari politikası)
-micBtn?.addEventListener('click', async () => {
-    micBtn.disabled = true;
-    micBtn.textContent = 'Başlatılıyor…';
-    await initMic();
-    micBtn.classList.add('hidden');
+  <script src="app.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+  var music = document.getElementById('bg-music');
+  var entryScreen = document.getElementById('entry-screen');
+  var bigBtn = document.getElementById('big-play-btn');
+  var mainContent = document.getElementById('main-content');
+  bigBtn.addEventListener('click', function() {
+    music.play();
+    entryScreen.style.display = 'none';
+    mainContent.style.display = 'block';
+  });
 });
-
-
-// Modern slider fonksiyonu
-const sliderContainer = document.querySelector('.slider-container');
-const sliderItems = document.querySelectorAll('.slider-item');
-const sliderBtnPrev = document.querySelector('.slider-btn-prev');
-const sliderBtnNext = document.querySelector('.slider-btn-next');
-let sliderIndex = 0;
-
-function updateSlider() {
-    sliderItems.forEach((item, i) => {
-        item.style.transform = `translateX(${-sliderIndex * 100}%)`;
-    });
-    if (sliderBtnPrev) sliderBtnPrev.style.display = sliderIndex === 0 ? 'none' : 'block';
-    if (sliderBtnNext) sliderBtnNext.style.display = sliderIndex === sliderItems.length - 1 ? 'none' : 'block';
-}
-
-sliderBtnPrev?.addEventListener('click', () => {
-    if (sliderIndex > 0) sliderIndex--;
-    updateSlider();
-});
-sliderBtnNext?.addEventListener('click', () => {
-    if (sliderIndex < sliderItems.length - 1) sliderIndex++;
-    updateSlider();
-});
-
-// Slider ilk açılışta güncellensin
-if (sliderContainer && sliderItems.length > 0) {
-    updateSlider();
-}
-
-// Modern slideshow fonksiyonu
-const slideshowTrack = document.querySelector('.slideshow-track');
-const slides = document.querySelectorAll('.slide');
-const slideshowBtnPrev = document.querySelector('.slideshow-btn-prev');
-const slideshowBtnNext = document.querySelector('.slideshow-btn-next');
-let slideIndex = 0;
-
-function updateSlideshow() {
-    slideshowTrack.style.transform = `translateX(${-slideIndex * 100}%)`;
-    if (slideshowBtnPrev) slideshowBtnPrev.style.display = slideIndex === 0 ? 'none' : 'block';
-    if (slideshowBtnNext) slideshowBtnNext.style.display = slideIndex === slides.length - 1 ? 'none' : 'block';
-}
-
-slideshowBtnPrev?.addEventListener('click', () => {
-    if (slideIndex > 0) slideIndex--;
-    updateSlideshow();
-});
-slideshowBtnNext?.addEventListener('click', () => {
-    if (slideIndex < slides.length - 1) slideIndex++;
-    updateSlideshow();
-});
-
-// Slideshow ilk açılışta güncellensin
-if (slideshowTrack && slides.length > 0) {
-    updateSlideshow();
-}
+</script>
+<script>
+// Sadece buton ile başlatma kodu kalacak
+</script>
+</body>
+</html>

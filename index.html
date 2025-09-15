@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doğum Günün Kutlu Olsun Aylin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body style="background: linear-gradient(135deg, #2a1f3d 0%, #4a2c5a 100%);">
+  <audio id="bg-music" src="music/dogum-gunu-aylin.mp3" loop hidden></audio>
+  <div id="entry-screen" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(42,31,61,0.95);display:flex;flex-direction:column;justify-content:center;align-items:center;">
+    <button id="big-play-btn" style="font-size:2.5rem;padding:2rem 4rem;border-radius:2rem;background:#ff69b4;color:white;border:none;box-shadow:0 0 20px #fff;cursor:pointer;">Buraya Tıkla</button>
+  </div>
+  <div id="main-content" style="display:none;">
+    <!-- Preloader -->
+    <div id="preloader" aria-hidden="true">
+      <div class="spinner"></div>
+      <p>Yükleniyor…</p>
+    </div>
+
+    <!-- Typewriter Ekranı -->
+    <section id="intro" class="screen active" aria-live="polite">
+      <h1 id="typewriter" aria-label="Doğum Günün Kutlu olsun. İyiki Doğdun Arkadaşım"></h1>
+    </section>
+
+    <!-- Pasta Ekranı -->
+    <section id="cake-screen" class="screen" aria-hidden="true">
+    <div class="decor">
+      <div class="bunting">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="confetti" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i><i></i>
+      </div>
+    </div>
+    <div class="cake-wrapper" role="img" aria-label="Doğum günü pastası ve mumlar">
+      <div class="cake">
+        <div class="layer layer-1"></div>
+        <div class="layer layer-2"></div>
+        <div class="layer layer-3"></div>
+        <div class="cream"></div>
+        <div class="plate"></div>
+        <div class="candles">
+          <div class="candle" data-id="1">
+            <div class="flame"></div>
+            <div class="smoke">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+          <div class="candle" data-id="2">
+            <div class="flame"></div>
+            <div class="smoke">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+          <div class="candle" data-id="3">
+            <div class="flame"></div>
+            <div class="smoke">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="hint" id="mic-hint">Mikrofona üfleyin ✨</p>
+      <div>
+        <button id="mic-btn" class="btn hidden" aria-describedby="mic-hint">Mikrofona izin ver</button>
+      </div>
+      <div id="blow-warning" class="blow-warning" aria-live="assertive" role="alert">Daha Güçlü Üfle Firavun!!!</div>
+    </div>
+    
+    <!-- Kutlama Gösterisi -->
+    <div id="celebration" class="celebration hidden" aria-hidden="true">
+      <!-- Konfetiler -->
+      <div class="confetti-container">
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+          <div class="confetti"></div>
+      </div>
+      
+      <!-- Havai Fişekler -->
+      <div class="fireworks-container">
+        <div class="firework">
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+        </div>
+        <div class="firework">
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+        </div>
+        <div class="firework">
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="wish" class="wish hidden" aria-live="polite" role="status">
+      <div class="slideshow-glass">
+        <div class="slideshow-track">
+          <div class="slide">
+            <img src="image/1.JPG" alt="Fotoğraf 1" class="slide-photo">
+          </div>
+          <div class="slide">
+            <img src="image/2.JPG" alt="Fotoğraf 2" class="slide-photo">
+          </div>
+          <div class="slide">
+            <img src="image/3.JPG" alt="Fotoğraf 3" class="slide-photo">
+          </div>
+          <div class="slide">
+            <img src="image/4.JPG" alt="Fotoğraf 4" class="slide-photo">
+          </div>
+          <div class="slide">
+            <img src="image/5.jpg" alt="Fotoğraf 5" class="slide-photo">
+          </div>
+          <div class="slide">
+            <img src="image/6.JPG" alt="Fotoğraf 6" class="slide-photo">
+          </div>
+          <div class="slide">
+            <img src="image/7.JPG" alt="Fotoğraf 7" class="slide-photo">
+          </div>
+          <div class="slide slide-message">
+            <h2 class="wish-title">Doğum Günün Kutlu Olsun!</h2>
+            <div class="wish-message">Hayatının yeni yaşında sağlık, mutluluk ve başarı seninle olsun. Tüm dileklerin gerçek olsun!</div>
+            <div class="signature">Semih Büyüktorun</div>
+          </div>
+        </div>
+        <button class="slideshow-btn slideshow-btn-prev" aria-label="Önceki">&#8592;</button>
+        <button class="slideshow-btn slideshow-btn-next" aria-label="Sonraki">&#8594;</button>
+      </div>
+    </div>
+    <div id="debug" class="debug hidden" aria-hidden="true"></div>
+  </section>
+  </div>
+
+  <script src="app.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+  var music = document.getElementById('bg-music');
+  var entryScreen = document.getElementById('entry-screen');
+  var bigBtn = document.getElementById('big-play-btn');
+  var mainContent = document.getElementById('main-content');
+  bigBtn.addEventListener('click', function() {
+    music.play();
+    entryScreen.style.display = 'none';
+    mainContent.style.display = 'block';
+  });
+});
+</script>
+<script>
+// Sadece buton ile başlatma kodu kalacak
+</script>
+</body>
+</html>

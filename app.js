@@ -155,7 +155,7 @@ function calibrateNoise(durationMs = 500) {
             if (performance.now() - start < durationMs) {
                 requestAnimationFrame(step);
             } else {
-                baseNoise = Math.max(6, acc / Math.max(1, n)); // diferansiyel RMS için alt sınır
+                baseNoise = Math.max(3, acc / Math.max(1, n)); // diferansiyel RMS için alt sınır (düşürüldü)
                 // ortama göre esnek eşik
                 calibrated = true;
                 resolve();
@@ -165,7 +165,7 @@ function calibrateNoise(durationMs = 500) {
     });
 }
 
-let BLOW_HOLD_MS = 200; // biraz daha hızlı tepki
+let BLOW_HOLD_MS = 100; // daha hızlı tepki (yarıya düşürüldü)
 let aboveSince = 0;
 let lastWarn = 0;
 let hasShownInitialWarning = false; // Bir kerelik uyarı flag'i
@@ -175,9 +175,9 @@ function listenForBlow() {
     const blowWarning = document.getElementById('blow-warning');
     const now = performance.now();
     const rms = getRMS();
-    // Gürültüye göre marj (%30 artırıldı): sessizde 5.85, gürültüde 10.4'e kadar
-    const margin = Math.max(5.85, Math.min(10.4, 4.55 + (baseNoise / 12)));
-    const dynamicThreshold = Math.min(130, baseNoise + margin);
+    // Gürültüye göre marj (%50 düşürüldü): sessizde 2.925, gürültüde 5.2'e kadar
+    const margin = Math.max(2.925, Math.min(5.2, 2.275 + (baseNoise / 24)));
+    const dynamicThreshold = Math.min(65, baseNoise + margin);
 
     // Ek: üflemede yüksek frekans içeriği artar; 2kHz-6kHz bandına basit bir bakış
     analyser.getByteFrequencyData(freqData);
@@ -193,8 +193,8 @@ function listenForBlow() {
     // görsel olarak hafif kıs: çok yüksekte dim kaldır
     candles.forEach(c => c.classList.toggle('dim', rms < dynamicThreshold));
 
-    // Gürültü seviyesine göre HF eşiği (%30 artırıldı): daha zorlu tetikleme için
-    const hfThreshold = Math.max(32.5, Math.min(58.5, 45.5 + (baseNoise - 15)));
+    // Gürültü seviyesine göre HF eşiği (%50 düşürüldü): daha kolay tetikleme için
+    const hfThreshold = Math.max(16.25, Math.min(29.25, 22.75 + (baseNoise - 15) * 0.5));
     // RMS ve yüksek frekans birlikte sağlanmalı
     const blowDetected = (rms > dynamicThreshold) && (hfAvg > hfThreshold);
     debugEl.textContent = `RMS: ${rms.toFixed(1)} (Eşik: ${dynamicThreshold.toFixed(1)}) | HF: ${hfAvg.toFixed(0)} (Eşik: ${hfThreshold.toFixed(0)}) | Algılandı: ${blowDetected ? 'EVET' : 'HAYIR'}`;
@@ -217,8 +217,8 @@ function listenForBlow() {
         }
     } else {
         aboveSince = 0;
-        // Yeterince güçlü üfleme yoksa uyarı göster - daha sıkı koşul (%30 artırıldı)
-        if (blowWarning && !isBlown && (rms > (baseNoise + 1.3) || hfAvg > 19.5)) {
+        // Yeterince güçlü üfleme yoksa uyarı göster - daha esnek koşul (%50 düşürüldü)
+        if (blowWarning && !isBlown && (rms > (baseNoise + 0.65) || hfAvg > 9.75)) {
             // Biraz ses var ama yeterli değil - sadece her 1.2 saniyede bir göster
             if (now - lastWarn > 1200) {
                 blowWarning.classList.add('show');
